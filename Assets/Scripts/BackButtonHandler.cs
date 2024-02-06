@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 public class BackButtonHandler : MonoBehaviour
 {
     private static BackButtonHandler _instance;
@@ -26,10 +30,17 @@ public class BackButtonHandler : MonoBehaviour
     private void Update()
     {
         #if UNITY_ANDROID
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            StartCoroutine(FadeOutAndExit());
-        }
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                StartCoroutine(FadeOutAndExit());
+            }
+        #endif
+
+        #if UNITY_EDITOR
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                StartCoroutine(FadeOutAndExit());
+            }
         #endif
     }
 
@@ -53,5 +64,9 @@ public class BackButtonHandler : MonoBehaviour
 
         // Exit the application (works on Android)
         Application.Quit();
+
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #endif
     }
 }
