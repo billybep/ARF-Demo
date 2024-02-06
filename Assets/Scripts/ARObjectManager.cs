@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(ARRaycastManager))]
 
 public class ARObjectManager : MonoBehaviour
 {
+    private HelicopterAnimation helicopterAnimation;
+
     public GameObject helicopter;
 
     public AudioClip resetSound; // Suara reset
     public AudioSource audioSource; // AudioSource untuk memutar suara
-
 
     public float animationDuration = 0.8f;
     public Vector3 targetScale = new Vector3(0.02f, 0.02f, 0.02f);
@@ -32,9 +34,21 @@ public class ARObjectManager : MonoBehaviour
 
     static List<ARRaycastHit> hits = new List<ARRaycastHit>();
 
+    private ARSession arSession;
+
     private void Awake()
     {
         _arRaycastManager = GetComponent<ARRaycastManager>();
+        arSession = FindObjectOfType<ARSession>(); // Dapatkan referensi ke ARSession
+    }
+
+    private void OnDisable()
+    {
+        // Pastikan ARSession tidak null dan ARSession aktif sebelum mematikan AR scanning
+        if (arSession != null && arSession.enabled)
+        {
+            arSession.enabled = false;
+        }
     }
 
     bool TryGetTouchPosition(out Vector2 touchPosition)
@@ -61,6 +75,10 @@ public class ARObjectManager : MonoBehaviour
             if (spawnObject == null)
             {
                 spawnObject = Instantiate(helicopter, hitPose.position, hitPose.rotation);
+
+                helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
+                if (helicopterAnimation)
+                    Debug.Log("FOUND");
                 
                 LeanTween
                     .scale(spawnObject, targetScale, animationDuration)
@@ -149,5 +167,32 @@ public class ARObjectManager : MonoBehaviour
                 .scale(spawnObject, initialScale, animationDuration)
                 .setEase(LeanTweenType.easeOutElastic);
         }
+    }
+
+    public void HeliAnimation1()
+    {
+        helicopterAnimation.StartPropellerAnimation(spawnObject, initialPosition);
+    }
+
+    void Start()
+    {
+         // Menginstansiasi prefab dan menyimpan instance baru ke dalam variabel instatiatePrefab
+            spawnObject = Instantiate(helicopter, transform.position, transform.rotation);
+
+                helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
+                if (helicopterAnimation)
+                    Debug.Log("FOUND");
+                
+                LeanTween
+                    .scale(spawnObject, targetScale, animationDuration)
+                    .setEase(LeanTweenType.easeOutElastic);
+                
+                // Store the initial position, rotation, and scale of the helicopter
+                initialPosition = spawnObject.transform.position;
+                initialRotation = spawnObject.transform.rotation;
+                initialScale = spawnObject.transform.localScale;
+
+                Debug.Log("INIT START POS" + initialPosition);
+        
     }
 }

@@ -13,12 +13,7 @@ public class LeenTweenAnim : MonoBehaviour
         LeanTween
             .scale(Title, new Vector3(2f, 2f, 2f), 2f)
             .setEase(easeType)
-            // .setRepeat(1);
             .setOnComplete(ButtonStartAnimation);
-
-        // LeanTween
-        //     .scale(BtnStart, new Vector3(1f, 1f, 1f), 1f)
-        //     .setEase(LeanTweenType.easeOutElastic);
     }
 
     void ButtonStartAnimation()

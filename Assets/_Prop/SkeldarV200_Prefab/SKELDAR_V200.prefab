@@ -25,14 +25,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 982052924151843199}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 3.8241875, y: 2.5024843, z: 0.052655425}
+  m_LocalRotation: {x: -0, y: -0.74710155, z: -0, w: -0.6647099}
+  m_LocalPosition: {x: 3.824191, y: 2.5024843, z: 0.05265522}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 6032958100882518396}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -7823.32, z: 0}
 --- !u!33 &7887299090256049564
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -258,6 +258,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6032958100882518396}
+  - component: {fileID: 1458617025}
   m_Layer: 0
   m_Name: SKELDAR_V200
   m_TagString: Untagged
@@ -272,9 +273,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7341437717772501871}
-  m_LocalRotation: {x: 0, y: 0.86602545, z: 0, w: 0.49999994}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6601928480815921119}
@@ -282,4 +283,21 @@ Transform:
   - {fileID: 3099415723903927262}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 120, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1458617025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7341437717772501871}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c36f4afad1824de8937dd982d2d466b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  propellerB: {fileID: 982052924151843199}
+  propellerS: {fileID: 5520742397988292159}
+  helicopterBody: {fileID: 5907799320304702438}
+  rotationAmount: 360
+  rotationDuration: 0.3

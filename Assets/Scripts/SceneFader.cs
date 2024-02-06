@@ -11,7 +11,9 @@ public class SceneFader : MonoBehaviour
 
     void Start()
     {
-        StartCoroutine(FadeIn());
+        LeanTween.alpha(fadeImage.rectTransform, 0.0f, fadeDuration)
+            .setEase(LeanTweenType.easeOutQuad)
+            .setOnComplete(() => fadeImage.gameObject.SetActive(false));
     }
 
     public void LoadScene(string sceneName)
@@ -19,19 +21,35 @@ public class SceneFader : MonoBehaviour
         StartCoroutine(FadeOut(sceneName));
     }
 
-    IEnumerator FadeIn()
+    IEnumerator FadeOut(string sceneName)
     {
-        fadeImage.canvasRenderer.SetAlpha(1.0f);
-        fadeImage.CrossFadeAlpha(0.0f, fadeDuration, false);
+        fadeImage.gameObject.SetActive(true);
+        LeanTween.alpha(fadeImage.rectTransform, 1.0f, fadeDuration)
+            .setEase(LeanTweenType.easeInQuad)
+            .setOnComplete(() => LoadNextScene(sceneName));
+
         yield return new WaitForSeconds(fadeDuration);
     }
 
-    IEnumerator FadeOut(string sceneName)
+    void LoadNextScene(string sceneName)
     {
-        fadeImage.canvasRenderer.SetAlpha(0.0f);
-        fadeImage.CrossFadeAlpha(1.0f, fadeDuration, false);
-        yield return new WaitForSeconds(fadeDuration);
+        // Jika berada di scene ARScene, atur transparansi gambar
+        if (sceneName == "ARScene")
+        {
+            SetImageTransparency(fadeImage, 0.5f); // Ganti nilai transparansi sesuai kebutuhan
+        }
 
         SceneManager.LoadScene(sceneName);
+    }
+
+    // Metode untuk mengatur transparansi gambar
+    void SetImageTransparency(Image image, float alpha)
+    {
+        if (image != null)
+        {
+            Color imageColor = image.color;
+            imageColor.a = alpha;
+            image.color = imageColor;
+        }
     }
 }
