@@ -296,31 +296,33 @@ public class ARObjectManager : MonoBehaviour
         helicopterAnimation.StartPropellerAnimation(spawnObject, initialPosition);
     }
 
-    // void Start()
-    // {
-    //      // Menginstansiasi prefab dan menyimpan instance baru ke dalam variabel instatiatePrefab
-    //         spawnObject = Instantiate(helicopter, transform.position, transform.rotation);
+    void Start()
+    {
+        #if UNITY_EDITOR
+            // Menginstansiasi prefab dan menyimpan instance baru ke dalam variabel instatiatePrefab
+            spawnObject = Instantiate(helicopter, transform.position, transform.rotation);
 
-    //             helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
-    //             if (helicopterAnimation)
-    //                 Debug.Log("FOUND");
+                helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
+                if (helicopterAnimation)
+                    Debug.Log("FOUND");
 
-    //                 // Menyesuaikan rotasi agar objek menghadap kamera
-    //             Vector3 lookPos = Camera.main.transform.position - spawnObject.transform.position;
-    //             lookPos.x = 90; // Mengabaikan perubahan rotasi pada sumbu y
-    //             Quaternion rotation = Quaternion.LookRotation(lookPos);
-    //             spawnObject.transform.rotation = rotation;
+                    // Menyesuaikan rotasi agar objek menghadap kamera
+                Vector3 lookPos = Camera.main.transform.position - spawnObject.transform.position;
+                lookPos.x = 90; // Mengabaikan perubahan rotasi pada sumbu y
+                Quaternion rotation = Quaternion.LookRotation(lookPos);
+                spawnObject.transform.rotation = rotation;
                 
-    //             LeanTween
-    //                 .scale(spawnObject, targetScale, animationDuration)
-    //                 .setEase(LeanTweenType.easeOutElastic);
+                LeanTween
+                    .scale(spawnObject, targetScale, animationDuration)
+                    .setEase(LeanTweenType.easeOutElastic);
                 
-    //             // Store the initial position, rotation, and scale of the helicopter
-    //             initialPosition = spawnObject.transform.position;
-    //             initialRotation = spawnObject.transform.rotation;
-    //             initialScale = spawnObject.transform.localScale;
+                // Store the initial position, rotation, and scale of the helicopter
+                initialPosition = spawnObject.transform.position;
+                initialRotation = spawnObject.transform.rotation;
+                initialScale = spawnObject.transform.localScale;
 
-    //             Debug.Log("INIT START POS" + initialPosition);
+                Debug.Log("INIT START POS" + initialPosition);
         
-    // }
+        #endif
+    }
 }
