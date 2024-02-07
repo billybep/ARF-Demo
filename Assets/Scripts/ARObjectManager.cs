@@ -10,10 +10,12 @@ using UnityEngine.SceneManagement;
 public class ARObjectManager : MonoBehaviour
 {
     private HelicopterAnimation helicopterAnimation;
-
+    // [SerializeField] private float spaceB = 2f;
     public GameObject helicopter;
+    public GameObject canvasTrivia;
 
     public AudioClip resetSound; // Suara reset
+    public AudioClip btnSound; // Suara reset
     public AudioSource audioSource; // AudioSource untuk memutar suara
 
     public float animationDuration = 0.8f;
@@ -76,6 +78,12 @@ public class ARObjectManager : MonoBehaviour
             {
                 spawnObject = Instantiate(helicopter, hitPose.position, hitPose.rotation);
 
+                // Menyesuaikan rotasi agar objek menghadap kamera
+                Vector3 lookPos = Camera.main.transform.position - spawnObject.transform.position;
+                lookPos.x = 120; // Mengabaikan perubahan rotasi pada sumbu y
+                Quaternion rotation = Quaternion.LookRotation(lookPos);
+                spawnObject.transform.rotation = rotation;
+
                 helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
                 if (helicopterAnimation)
                     Debug.Log("FOUND");
@@ -93,15 +101,127 @@ public class ARObjectManager : MonoBehaviour
             {
                 HandleTouchInput();
             }
-
-            spawnObject.transform.position = hitPose.position;
         }
     }
 
+    public Vector3 targetScaleTrivia = new Vector3(0.008f, 0.008f, 0.008f); // Set the target scale
+    public float animationDurationTrivia = 1.5f; // Duration of the animation
+
+
+    // Scale up animation coroutine
+    IEnumerator ScaleUpAnimation(GameObject target, Vector3 targetScale, float duration)
+    {
+        float timer = 0f;
+        // Vector3 initialScale = target.transform.localScale;
+        targetScale = Vector3.Min(targetScale, new Vector3(0.01f, 0.01f, 0.01f));
+
+        while (timer < duration)
+        {
+            float t = timer / duration;
+            target.transform.localScale = Vector3.Lerp(initialScale, targetScale, t);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        target.transform.localScale = targetScale; // Ensure target scale is reached
+    }
+
+    // Scale down animation coroutine
+    IEnumerator ScaleDownAnimation(GameObject target, Vector3 targetScale, float duration)
+    {
+        float timer = 0f;
+        Vector3 initialScale = target.transform.localScale;
+
+        while (timer < duration)
+        {
+            float t = timer / duration;
+            target.transform.localScale = Vector3.Lerp(initialScale, targetScale, t);
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        target.transform.localScale = targetScale; // Ensure target scale is reached
+    }
+
+    // Scale down animation coroutine, then toggle canvas active state
+    IEnumerator ScaleDownThenToggle(GameObject target, Vector3 targetScale, float duration)
+    {
+        yield return StartCoroutine(ScaleDownAnimation(target, targetScale, duration));
+        // After scaling down animation, toggle the canvas active state
+        canvasTrivia.SetActive(!canvasTrivia.activeSelf);
+    }
+
+    public void showTrivia()
+    {
+        Debug.Log("Show TRIVIA");
+        // Play sound
+        if (audioSource != null && btnSound != null)
+        {
+            audioSource.PlayOneShot(btnSound);
+        }
+
+        bool canvasActive = canvasTrivia.activeSelf;
+
+        if (canvasActive)
+        {
+            // StartCoroutine(ScaleDownAnimation(canvasTrivia, Vector3.zero, animationDurationTrivia));
+            StartCoroutine(ScaleDownThenToggle(canvasTrivia, Vector3.zero, animationDurationTrivia));
+        }
+        else
+        {
+            canvasTrivia.SetActive(true);
+            StartCoroutine(ScaleUpAnimation(canvasTrivia, Vector3.one, animationDurationTrivia));
+        }
+
+        // if (canvasActive)
+        // {
+        //     Debug.Log("Show TRIVIA Active");
+        //     canvasTrivia.SetActive(!canvasTrivia.activeSelf);
+        //     // Scale up animation
+        //     LeanTween.scale(canvasTrivia, targetScaleTrivia, animationDurationTrivia)
+        //         .setEase(LeanTweenType.easeOutBack); 
+        // } else {
+        //     Debug.Log("Show TRIVIA Inactive");
+        //     // Scale down animation
+        //         LeanTween
+        //         .scale(canvasTrivia, new Vector3(0.01f, 0.01f, 0.01f), 2f)
+        //         .setEase(LeanTweenType.easeOutElastic)
+        //         .setOnComplete(() =>
+        //         {
+        //             // Set the canvasTrivia to inactive after the animation completes
+        //             // canvasTrivia.SetActive(false);
+        //             canvasTrivia.SetActive(!canvasTrivia.activeSelf);
+        //         });
+        // }
+
+        // canvasTrivia.SetActive(!canvasTrivia.activeSelf);
+    }
+
+    public float touchThreshold = 0.1f; // Adjust threshold value as needed
     void HandleTouchInput()
     {
         if (Input.touchCount == 1)
         {
+            Debug.Log("Touchss");
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (_arRaycastManager.Raycast(touch.position, hits, TrackableType.PlaneWithinPolygon))
+                {
+                    foreach (var hit in hits)
+                    {
+                        // Check if the hit point is near the position of the spawned helicopter
+                        if (spawnObject != null && Vector3.Distance(hit.pose.position, spawnObject.transform.position) < touchThreshold)
+                        {
+                            // Perform actions when the helicopter is touched
+                            Debug.Log("Helicopter is touched!");
+                            // You can add further actions here, such as showing trivia, etc.
+                            showTrivia();
+                        }
+                    }
+                }
+            }
+
             // 1 finger drag: Rotate the helicopter
             RotateHelicopter();
         }
@@ -114,12 +234,14 @@ public class ARObjectManager : MonoBehaviour
 
     void RotateHelicopter()
     {
+        Debug.Log("RotateHelix");
         float rotationX = Input.GetTouch(0).deltaPosition.x * rotationSpeed * Time.deltaTime;
         spawnObject.transform.Rotate(Vector3.up, -rotationX);
     }
 
     void ScaleHelicopter()
     {
+        Debug.Log("ScaleHelix");
         Touch touch0 = Input.GetTouch(0);
         Touch touch1 = Input.GetTouch(1);
 
@@ -174,25 +296,31 @@ public class ARObjectManager : MonoBehaviour
         helicopterAnimation.StartPropellerAnimation(spawnObject, initialPosition);
     }
 
-    void Start()
-    {
-         // Menginstansiasi prefab dan menyimpan instance baru ke dalam variabel instatiatePrefab
-            spawnObject = Instantiate(helicopter, transform.position, transform.rotation);
+    // void Start()
+    // {
+    //      // Menginstansiasi prefab dan menyimpan instance baru ke dalam variabel instatiatePrefab
+    //         spawnObject = Instantiate(helicopter, transform.position, transform.rotation);
 
-                helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
-                if (helicopterAnimation)
-                    Debug.Log("FOUND");
-                
-                LeanTween
-                    .scale(spawnObject, targetScale, animationDuration)
-                    .setEase(LeanTweenType.easeOutElastic);
-                
-                // Store the initial position, rotation, and scale of the helicopter
-                initialPosition = spawnObject.transform.position;
-                initialRotation = spawnObject.transform.rotation;
-                initialScale = spawnObject.transform.localScale;
+    //             helicopterAnimation = spawnObject.GetComponent<HelicopterAnimation>();
+    //             if (helicopterAnimation)
+    //                 Debug.Log("FOUND");
 
-                Debug.Log("INIT START POS" + initialPosition);
+    //                 // Menyesuaikan rotasi agar objek menghadap kamera
+    //             Vector3 lookPos = Camera.main.transform.position - spawnObject.transform.position;
+    //             lookPos.x = 90; // Mengabaikan perubahan rotasi pada sumbu y
+    //             Quaternion rotation = Quaternion.LookRotation(lookPos);
+    //             spawnObject.transform.rotation = rotation;
+                
+    //             LeanTween
+    //                 .scale(spawnObject, targetScale, animationDuration)
+    //                 .setEase(LeanTweenType.easeOutElastic);
+                
+    //             // Store the initial position, rotation, and scale of the helicopter
+    //             initialPosition = spawnObject.transform.position;
+    //             initialRotation = spawnObject.transform.rotation;
+    //             initialScale = spawnObject.transform.localScale;
+
+    //             Debug.Log("INIT START POS" + initialPosition);
         
-    }
+    // }
 }

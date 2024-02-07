@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 
 public class HelicopterAnimation : MonoBehaviour
 {
@@ -8,7 +9,6 @@ public class HelicopterAnimation : MonoBehaviour
 
     public float rotationAmount = 360f; // Jumlah rotasi dalam derajat
     public float rotationDuration = 1.0f; // Durasi rotasi dalam detik
-
 
     public void StartPropellerAnimation(GameObject spawnObject, Vector3 initialPosition)
     {
